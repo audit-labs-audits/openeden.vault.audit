@@ -1,0 +1,354 @@
+{
+  "title": "3.2: Vault State & Configuration",
+  "id": "Q7B57mUHSfLgmKB+Vx6qjTV+wozvco4sRtBj3H6008Q=",
+  "originalId": 5188,
+  "position": 4,
+  "type": "text",
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "**Welcome to the OpenEden Vault Configuration and State Management tour!** This walkthrough will explore how the vault is configured by privileged roles and what data it stores to operate correctly. We'll examine the key configuration variables and the role-based access control system.",
+      "title": "",
+      "id": "63763"
+    },
+    {
+      "type": "highlight",
+      "description": "**The Underlying Token**: The vault's base asset is stored in the `underlying` variable. This represents the `USDC` token that users deposit and withdraw. Notice there's no setter function for this variable - it's typically set during contract initialization and remains immutable.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 49,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "63764"
+    },
+    {
+      "type": "highlight",
+      "description": "**T-Bill Price Feed**: The `tbillUsdPriceFeed` provides real-time pricing data for T-bills in USD, which is used to calculate the vault's asset value and share conversions.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 59
+        }
+      ],
+      "title": "",
+      "id": "63765"
+    },
+    {
+      "type": "highlight",
+      "description": "The T-bill price feed can be updated by the contract owner through `setTBillPriceFeed`. Notice the `onlyOwner` modifier ensures only the highest privilege role can modify this critical component.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 443,
+          "end": 447
+        }
+      ],
+      "title": "",
+      "id": "63766"
+    },
+    {
+      "type": "highlight",
+      "description": "**Controller Contract**: The `controller` manages pause/unpause functionality for deposits and withdrawals. This provides an emergency stop mechanism for the vault.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 53
+        }
+      ],
+      "title": "",
+      "id": "63767"
+    },
+    {
+      "type": "highlight",
+      "description": "The controller can be updated by the owner using `setController`. This allows the vault to integrate with updated pause/unpause logic if needed.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 454,
+          "end": 458
+        }
+      ],
+      "title": "",
+      "id": "63768"
+    },
+    {
+      "type": "highlight",
+      "description": "**Fee Manager**: The `feeManager` contract handles all fee-related calculations including transaction fees, minimum deposits, and management fees.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "63769"
+    },
+    {
+      "type": "highlight",
+      "description": "The fee manager can be updated by the owner through `setFeeManager`. This allows fee structures to be modified as needed while maintaining the vault's core functionality.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 421,
+          "end": 425
+        }
+      ],
+      "title": "",
+      "id": "63770"
+    },
+    {
+      "type": "highlight",
+      "description": "**KYC Manager**: The `kycManager` enforces Know Your Customer compliance by checking user KYC status and ban lists before allowing transactions.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 77
+        }
+      ],
+      "title": "",
+      "id": "63771"
+    },
+    {
+      "type": "highlight",
+      "description": "The KYC manager can be updated by the owner using `setKycManager`. This ensures the vault can adapt to changing compliance requirements.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 432,
+          "end": 436
+        }
+      ],
+      "title": "",
+      "id": "63772"
+    },
+    {
+      "type": "highlight",
+      "description": "**Redemption Contract**: The `redemptionContract` enables instant redemptions by providing an alternative liquidity source for users who need immediate withdrawals.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 115,
+          "end": 116
+        }
+      ],
+      "title": "",
+      "id": "63773"
+    },
+    {
+      "type": "highlight",
+      "description": "The redemption contract can be updated by the maintainer using `setRedemption`. Note this uses **onlyMaintainer** rather than **onlyOwner**, showing different privilege levels for different configurations.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 696,
+          "end": 701
+        }
+      ],
+      "title": "",
+      "id": "63774"
+    },
+    {
+      "type": "highlight",
+      "description": "**Partnership Contract**: The `partnerShip` contract manages fee sharing with partners and can provide fee discounts or rebates to certain users.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 109,
+          "end": 110
+        }
+      ],
+      "title": "",
+      "id": "63775"
+    },
+    {
+      "type": "highlight",
+      "description": "The partnership contract can be updated by the maintainer through `setPartnerShip`. This allows partnership arrangements to be modified without requiring owner-level permissions.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 487,
+          "end": 490
+        }
+      ],
+      "title": "",
+      "id": "63776"
+    },
+    {
+      "type": "highlight",
+      "description": "**Treasury Address**: The `treasury` receives the underlying tokens (`USDC`) from user deposits. This is where the vault's main assets are stored.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 67,
+          "end": 68
+        }
+      ],
+      "title": "",
+      "id": "63777"
+    },
+    {
+      "type": "highlight",
+      "description": "The treasury address can be updated by the owner using `setTreasury`. This is a critical configuration that determines where deposited funds are sent.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 465,
+          "end": 469
+        }
+      ],
+      "title": "",
+      "id": "63778"
+    },
+    {
+      "type": "highlight",
+      "description": "**OPL Treasury**: The `oplTreasury` receives transaction fees charged to users. This is separate from the main treasury to segregate fee income.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 64,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "63779"
+    },
+    {
+      "type": "highlight",
+      "description": "The OPL treasury can be updated by the owner through `setOplTreasury`. This allows fee collection to be redirected as needed.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 399,
+          "end": 403
+        }
+      ],
+      "title": "",
+      "id": "63780"
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's explore the role-based access control system that governs who can modify these configurations and perform various operations.",
+      "title": "",
+      "id": "63781"
+    },
+    {
+      "type": "highlight",
+      "description": "**Owner Role**: The vault inherits from `OwnableUpgradeable`, giving it an owner role with the highest privileges. The owner can modify most configuration variables.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 29
+        }
+      ],
+      "title": "",
+      "id": "63782"
+    },
+    {
+      "type": "highlight",
+      "description": "**Maintainer Role**: The `maintainer` address has intermediate privileges. They can modify certain configurations like partnerships and redemption contracts, but not core infrastructure components.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 56
+        }
+      ],
+      "title": "",
+      "id": "63783"
+    },
+    {
+      "type": "highlight",
+      "description": "The maintainer can be updated by the owner using `setMaintainer`. This allows the owner to delegate operational responsibilities to trusted parties.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 497,
+          "end": 500
+        }
+      ],
+      "title": "",
+      "id": "63784"
+    },
+    {
+      "type": "highlight",
+      "description": "**Operators Mapping**: The `operators` mapping tracks which addresses have operator privileges. Multiple addresses can be operators simultaneously.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 113
+        }
+      ],
+      "title": "",
+      "id": "63785"
+    },
+    {
+      "type": "highlight",
+      "description": "**Maintainer Access Control**: The `onlyMaintainer` modifier ensures only the maintainer address can call certain functions. This provides intermediate-level access control.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 130,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "63786"
+    },
+    {
+      "type": "highlight",
+      "description": "**Operator Access Control**: The `onlyOperator` modifier checks if the caller is in the `operators` mapping. This allows multiple addresses to perform operational tasks.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 124,
+          "end": 128
+        }
+      ],
+      "title": "",
+      "id": "63787"
+    },
+    {
+      "type": "highlight",
+      "description": "**Managing Operators**: The `setOperator` function allows the maintainer to add or remove operators. It takes arrays of addresses and their corresponding status flags, enabling batch updates of operator privileges. Setting status to `true` adds an operator, while `false` removes them.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 508,
+          "end": 518
+        }
+      ],
+      "title": "",
+      "id": "63788"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the vault's access control model, which of the following configuration changes can be executed by an address holding only the `maintainer` role?\n\nOptions:\n\n A). Calling `setTBillPriceFeed(newAddress)` to update the T-bill price oracle.\n\nB). Calling `setOperator(operators, statuses)` to manage operator privileges.\n\nC). Calling `setTreasury(newAddress)` to change the destination for deposited assets.\n\nD). Calling `setKycManager(newAddress)` to update the compliance verification contract.\n\n\nCorrect: B). Calling `setOperator(operators, statuses)` to manage operator privileges.\n\nExplanation: The `maintainer` role is responsible for operational tasks, not core contract configuration. The `setOperator` function is restricted by the `onlyMaintainer` modifier, allowing the maintainer to manage addresses with operator privileges. In contrast, functions like `setTBillPriceFeed`, `setTreasury`, and `setKycManager` are protected by the `onlyOwner` modifier, reserving these critical changes for the highest privilege level.",
+      "title": "",
+      "id": "63790",
+      "text": "Based on the vault's access control model, which of the following configuration changes can be executed by an address holding only the `maintainer` role?",
+      "answers": [
+        "Calling `setTBillPriceFeed(newAddress)` to update the T-bill price oracle.",
+        "Calling `setOperator(operators, statuses)` to manage operator privileges.",
+        "Calling `setTreasury(newAddress)` to change the destination for deposited assets.",
+        "Calling `setKycManager(newAddress)` to update the compliance verification contract."
+      ],
+      "correct": 1,
+      "explanation": "The `maintainer` role is responsible for operational tasks, not core contract configuration. The `setOperator` function is restricted by the `onlyMaintainer` modifier, allowing the maintainer to manage addresses with operator privileges. In contrast, functions like `setTBillPriceFeed`, `setTreasury`, and `setKycManager` are protected by the `onlyOwner` modifier, reserving these critical changes for the highest privilege level."
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our tour of the `OpenEden Vault`'s configuration and state management system. The vault uses a three-tier privilege system (`Owner > Maintainer > Operator`) to ensure proper governance while allowing operational flexibility. Each `configuration variable` has appropriate access controls to maintain security while enabling necessary updates.",
+      "title": "",
+      "id": "63789"
+    }
+  ]
+}

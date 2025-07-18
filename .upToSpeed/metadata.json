@@ -1,0 +1,20 @@
+{
+  "packageName": "openeden.vault.audit",
+  "packageVersion": 1,
+  "hash": "8745c3499be162ab3b278b4cc57089f97d2aa851",
+  "numberOfTours": 6,
+  "titleOfTours": [
+    "1.1: The OpenEden T-Bill Vault: A High-Level Tour",
+    "2.1: KYC Management",
+    "3.1: OpenEden Vault: Overview",
+    "3.2: Vault State & Configuration",
+    "3.3: The Deposit Flow",
+    "3.4: Want to learn more?"
+  ],
+  "totalNumberOfSteps": 101,
+  "filesCovered": [
+    "contracts/OpenEdenVaultV4Impl.sol",
+    "contracts/KycManager.sol"
+  ],
+  "numberOfFilesCovered": 2
+}

@@ -1,0 +1,275 @@
+{
+  "title": "2.1: KYC Management",
+  "id": "l4Z3w18Bny6AEENTUg8e5r6TendBH7gNNhCq7oFvsGo=",
+  "originalId": 5189,
+  "position": 2,
+  "type": "text",
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "The `KycManager` contract serves as a centralized registry for user **KYC** (Know Your Customer) status in the `OpenEden T-Bill Vault` system. It acts as the gatekeeper, tracking which users have completed **KYC** verification and whether they are banned from the system.",
+      "title": "",
+      "id": "63728"
+    },
+    {
+      "type": "highlight",
+      "description": "At its core, the `KycManager` uses a mapping called `userList` to store user information. Each address maps to a `User` struct containing their KYC status and ban status. The `strictOn` boolean controls whether strict KYC validation is enforced.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "63729"
+    },
+    {
+      "type": "highlight",
+      "description": "The `User` struct contains a `kycType` field that can hold three values: `NON_KYC` (no KYC), `US_KYC` (US-specific KYC), and `GENERAL_KYC` (general international KYC). This allows the system to differentiate between different types of verified users.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 83,
+          "end": 87
+        }
+      ],
+      "title": "",
+      "id": "63730"
+    },
+    {
+      "type": "highlight",
+      "description": "The struct also includes an `isBanned` boolean field that tracks whether a user has been banned from the system. This provides a separate control mechanism from `KYC` status.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 134,
+          "end": 135
+        }
+      ],
+      "title": "",
+      "id": "63731"
+    },
+    {
+      "type": "textOnly",
+      "description": "The contract implements a sophisticated role-based access control system with five distinct administrative roles, each responsible for specific operations. This separation of duties ensures that no single entity has complete control over user management.",
+      "title": "",
+      "id": "63732"
+    },
+    {
+      "type": "highlight",
+      "description": "The five administrative roles are defined as constants. `GRANT_ROLE` can approve KYC, `REVOKE_ROLE` can remove KYC status, `BAN_ROLE` can ban users, `UNBAN_ROLE` can unban users, and `UPGRADE_ROLE` can upgrade the contract implementation.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "63733"
+    },
+    {
+      "type": "highlight",
+      "description": "During initialization, these roles are assigned to different addresses, demonstrating the **separation of duties principle**. The admin receives both `DEFAULT_ADMIN_ROLE` and `UPGRADE_ROLE`, while KYC operations are distributed among specialized addresses. Notice that `strictOn` is set to `true` by default.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 43,
+          "end": 59
+        }
+      ],
+      "title": "",
+      "id": "63734"
+    },
+    {
+      "type": "textOnly",
+      "description": "The **contract** provides several administrative **functions** for managing user **KYC status**. These **functions** are designed to operate in bulk for efficiency and are protected by their respective **roles**.",
+      "title": "",
+      "id": "63735"
+    },
+    {
+      "type": "highlight",
+      "description": "The `grantKycInBulk` function allows addresses with `GRANT_ROLE` to approve KYC for multiple users at once. It accepts arrays of addresses and corresponding KYC types, then processes each user through the internal `_grantKyc` function.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 68,
+          "end": 76
+        }
+      ],
+      "title": "",
+      "id": "63736"
+    },
+    {
+      "type": "highlight",
+      "description": "The internal `_grantKyc` function validates that the KYC type is either `US_KYC` or `GENERAL_KYC` (line 84), then updates the user's KYC status in the `userList` mapping (line 86) and emits a `GrantKyc` event.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 78,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "63737"
+    },
+    {
+      "type": "highlight",
+      "description": "KYC revocation works similarly through `revokeKycInBulk`, which is restricted to addresses with `REVOKE_ROLE`. It processes multiple users by calling the internal `_revokeKyc` function for each address.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 93,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "63738"
+    },
+    {
+      "type": "highlight",
+      "description": "The `_revokeKyc` function emits an event with the user's current KYC type before resetting it to `NON_KYC` (line 105), effectively removing their KYC status.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 101,
+          "end": 106
+        }
+      ],
+      "title": "",
+      "id": "63739"
+    },
+    {
+      "type": "highlight",
+      "description": "User banning is handled through `bannedInBulk`, which requires `BAN_ROLE` permissions. It calls the internal `_bannedInternal` function with `true` to ban multiple users simultaneously.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 111,
+          "end": 117
+        }
+      ],
+      "title": "",
+      "id": "63740"
+    },
+    {
+      "type": "highlight",
+      "description": "Unbanning follows the same pattern with `unBannedInBulk`, restricted to `UNBAN_ROLE` holders. It calls `_bannedInternal` with `false` to remove the ban status from multiple users.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 122,
+          "end": 128
+        }
+      ],
+      "title": "",
+      "id": "63741"
+    },
+    {
+      "type": "highlight",
+      "description": "The `_bannedInternal` function updates the user's `isBanned` status (line 134) and emits a `Banned` event with the new status, providing a unified mechanism for both banning and unbanning operations.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 130,
+          "end": 136
+        }
+      ],
+      "title": "",
+      "id": "63742"
+    },
+    {
+      "type": "mcq",
+      "description": "An address holding only the `REVOKE_ROLE` attempts to call `grantKycInBulk`. What is the expected outcome?\n\nOptions:\n\n A). The transaction will revert due to the `onlyRole` modifier check.\n\nB). The transaction will succeed, but no KYC status will be changed.\n\nC). The transaction will succeed, setting the user's `kycType` to `NON_KYC`.\n\nD). The transaction will revert due to an invalid input error.\n\n\nCorrect: A). The transaction will revert due to the `onlyRole` modifier check.\n\nExplanation: The `grantKycInBulk` function is protected by the `onlyRole(GRANT_ROLE)` modifier. An address holding only the `REVOKE_ROLE` does not have the required permission. Therefore, the transaction will fail the access control check and revert before any of the function's internal logic is executed.",
+      "title": "",
+      "id": "63750",
+      "text": "An address holding only the `REVOKE_ROLE` attempts to call `grantKycInBulk`. What is the expected outcome?",
+      "answers": [
+        "The transaction will revert due to the `onlyRole` modifier check.",
+        "The transaction will succeed, but no KYC status will be changed.",
+        "The transaction will succeed, setting the user's `kycType` to `NON_KYC`.",
+        "The transaction will revert due to an invalid input error."
+      ],
+      "correct": 0,
+      "explanation": "The `grantKycInBulk` function is protected by the `onlyRole(GRANT_ROLE)` modifier. An address holding only the `REVOKE_ROLE` does not have the required permission. Therefore, the transaction will fail the access control check and revert before any of the function's internal logic is executed."
+    },
+    {
+      "type": "textOnly",
+      "description": "The `KycManager` provides a comprehensive set of view functions that allow other contracts in the system to easily check user status. These functions form the primary interface that the main `Vault` contract uses for access control.",
+      "title": "",
+      "id": "63743"
+    },
+    {
+      "type": "highlight",
+      "description": "The `getUserInfo` function returns the complete `User` struct for a given address, providing access to both KYC type and ban status in a single call.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "63744"
+    },
+    {
+      "type": "highlight",
+      "description": "The contract provides validation functions that revert on failure: `onlyNotBanned` ensures a user isn't banned (line 153), while `onlyKyc` ensures a user has some form of KYC approval by checking they're not `NON_KYC` (line 159).",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 152,
+          "end": 161
+        }
+      ],
+      "title": "",
+      "id": "63745"
+    },
+    {
+      "type": "highlight",
+      "description": "The contract also provides boolean query functions: `isBanned` checks ban status, `isKyc` checks for any KYC approval, `isUSKyc` specifically checks for US KYC, `isNonUSKyc` checks for general KYC, and `isStrict` returns the global strict mode setting.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 163,
+          "end": 181
+        }
+      ],
+      "title": "",
+      "id": "63746"
+    },
+    {
+      "type": "highlight",
+      "description": "The contract includes a `strictOn` boolean flag that can be toggled by the **admin role** through the `setStrict` function. This global setting affects how strictly KYC validation is enforced throughout the system.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 138,
+          "end": 141
+        }
+      ],
+      "title": "",
+      "id": "63747"
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the contract is upgradeable through the **UUPS (Universal Upgradeable Proxy Standard)** pattern. The `_authorizeUpgrade` function restricts upgrade permissions to addresses with the `UPGRADE_ROLE`, ensuring controlled evolution of the contract.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 61,
+          "end": 63
+        }
+      ],
+      "title": "",
+      "id": "63748"
+    },
+    {
+      "type": "textOnly",
+      "description": "The KycManager contract is an access control system that uses role-based permissions for its user management functions. This structure creates a separation of concerns and serves as the foundation for user authorization throughout the OpenEden T-Bill Vault ecosystem.",
+      "title": "",
+      "id": "63749"
+    }
+  ]
+}

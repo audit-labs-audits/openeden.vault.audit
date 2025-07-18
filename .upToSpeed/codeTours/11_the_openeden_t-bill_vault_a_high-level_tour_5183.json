@@ -1,0 +1,165 @@
+{
+  "title": "1.1: The OpenEden T-Bill Vault: A High-Level Tour",
+  "id": "nbCEjOPQef8ZqlIbHZeu1SyqLwMDeG2OGUiDoT/WHxQ=",
+  "originalId": 5183,
+  "position": 1,
+  "type": "text",
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to a high-level tour of the `OpenEden T-Bill Vault system`. This is a decentralized finance (**DeFi**) protocol that allows users to invest in US Treasury Bills through blockchain technology.\n\nUsers deposit `USDC` and receive vault shares representing their stake in a pool of T-Bills. This walkthrough will introduce you to the main components and show you how they work together.",
+      "title": "",
+      "id": "63644"
+    },
+    {
+      "type": "textOnly",
+      "description": "The system consists of three main smart contracts:\n\n1. **`OpenEdenVaultV4Impl.sol`** - The core vault contract that manages deposits, withdrawals, and acts as an **ERC20 token**\n2. **`KycManager.sol`** - Handles user verification and access control\n3. **`DoubleQueueModified.sol`** - Manages the withdrawal queue system\n\nLet's explore each of these components and understand their roles.",
+      "title": "",
+      "id": "63645"
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the core contract definition. Notice that `OpenEdenVaultV4` inherits from `ERC20Upgradeable`, making the vault shares themselves a tradable token. It also inherits from `OwnableUpgradeable` for access control and `UUPSUpgradeable` for upgradeability.\n\nThis contract serves as the central hub for all major operations in the system.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "63646"
+    },
+    {
+      "type": "highlight",
+      "description": "Before anyone can interact with the vault, they must pass KYC verification. The `_validateKyc` function checks with the `KycManager` contract to ensure both the sender and receiver are verified and not banned.\n\nThis function is called at the beginning of every critical operation, creating a secure gateway to the vault.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 1071,
+          "end": 1078
+        }
+      ],
+      "title": "",
+      "id": "63647"
+    },
+    {
+      "type": "highlight",
+      "description": "The `KycManager` contract handles user verification. It maintains a mapping of users to their KYC status and ban status. The contract uses role-based access control to manage who can grant, revoke, or ban users.\n\nThis separation of concerns keeps the access control logic modular and secure.",
+      "file": "contracts/KycManager.sol",
+      "highlight": [
+        {
+          "start": 9,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "63648"
+    },
+    {
+      "type": "highlight",
+      "description": "The `deposit` function is how users enter the system. After **KYC** validation on line 149, the function checks minimum deposit requirements and processes the deposit.\n\nUsers send `USDC` and receive vault shares in return, with the conversion rate determined by the current `T-Bill` price.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "63649"
+    },
+    {
+      "type": "highlight",
+      "description": "For withdrawals, users have two options. The first is the standard `redeem` function, which adds their request to a queue. The request will be processed later when sufficient liquidity is available.\n\nThis queued approach helps manage liquidity and ensures orderly withdrawals.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 170,
+          "end": 181
+        }
+      ],
+      "title": "",
+      "id": "63650"
+    },
+    {
+      "type": "highlight",
+      "description": "The second withdrawal option is `redeemIns` for instant redemption. This function bypasses the queue by using an external redemption contract that provides immediate liquidity.\n\nUsers pay a small fee for this convenience, but get their `USDC` immediately rather than waiting in the queue.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 189,
+          "end": 205
+        }
+      ],
+      "title": "",
+      "id": "63651"
+    },
+    {
+      "type": "highlight",
+      "description": "The `tbillUsdcRate` function determines share prices. It fetches the current T-Bill price from a `Chainlink oracle` and includes security checks.\n\nLine 638 ensures the price is positive, and lines 646-647 check that the price data isn't stale (not older than 7 days). These safeguards protect against price manipulation and oracle failures.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 634,
+          "end": 650
+        }
+      ],
+      "title": "",
+      "id": "63652"
+    },
+    {
+      "type": "highlight",
+      "description": "The system uses a role-based permission structure. Here we see the `onlyOperator` and `onlyMaintainer` modifiers. These roles, along with the contract `owner`, form a hierarchy of administrative permissions.\n\nThis design allows for secure delegation of different operational responsibilities.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 125,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "63653"
+    },
+    {
+      "type": "highlight",
+      "description": "The `processWithdrawalQueue` function can only be called by **operators**. This is where queued withdrawal requests are processed when sufficient on-chain liquidity is available.\n\n**Operators** play a key role in maintaining the system's liquidity and ensuring smooth withdrawals.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 263,
+          "end": 270
+        }
+      ],
+      "title": "",
+      "id": "63654"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the high-level architecture presented, what is the primary responsibility of the `Operator` role?\n\nOptions:\n\n A). To grant or revoke KYC status for new users.\n\nB). To process withdrawal requests that have been added to the queue.\n\nC). To perform system upgrades and set critical contract addresses.\n\nD). To manually update the T-Bill price from the Chainlink oracle.\n\n\nCorrect: B). To process withdrawal requests that have been added to the queue.\n\nExplanation: The correct answer is that the `Operator` processes queued withdrawal requests. As shown in the `processWithdrawalQueue` function, this action is restricted by the `onlyOperator` modifier. Granting KYC is handled by the `KycManager` contract, system upgrades are the responsibility of the `Owner`, and the T-Bill price is read directly from the oracle, not manually updated by an operator.",
+      "title": "",
+      "id": "63658",
+      "text": "Based on the high-level architecture presented, what is the primary responsibility of the `Operator` role?",
+      "answers": [
+        "To grant or revoke KYC status for new users.",
+        "To process withdrawal requests that have been added to the queue.",
+        "To perform system upgrades and set critical contract addresses.",
+        "To manually update the T-Bill price from the Chainlink oracle."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the `Operator` processes queued withdrawal requests. As shown in the `processWithdrawalQueue` function, this action is restricted by the `onlyOperator` modifier. Granting KYC is handled by the `KycManager` contract, system upgrades are the responsibility of the `Owner`, and the T-Bill price is read directly from the oracle, not manually updated by an operator."
+    },
+    {
+      "type": "textOnly",
+      "description": "Let's summarize the complete user journey:\n\n1. **KYC Verification** - Users must be approved through the `KycManager`\n2. **Deposit** - Users send `USDC` and receive vault shares based on current `T-Bill` prices\n3. **Holding** - Shares appreciate in value as `T-Bills` earn interest\n4. **Withdrawal** - Users can either join the queue or use instant redemption\n5. **Processing** - Operators process the queue when liquidity is available\n\nThe system is managed by three key roles: **Owner** (ultimate control), **Maintainer** (operational management), and **Operator** (day-to-day processing).",
+      "title": "",
+      "id": "63655"
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our high-level tour of the **OpenEden T-Bill Vault system**. You now understand the main components and how they interact:\n\n- The `core vault contract` manages deposits, withdrawals, and share tokens\n- The `KYC manager` ensures only verified users can participate\n- The `price oracle` provides secure, up-to-date T-Bill valuations\n- **Role-based permissions** enable secure system administration\n\nWith this foundation, you're ready to explore the detailed implementation of each component in the upcoming deep-dive tours.",
+      "title": "",
+      "id": "63656"
+    }
+  ]
+}

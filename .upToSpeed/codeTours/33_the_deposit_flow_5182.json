@@ -1,0 +1,213 @@
+{
+  "title": "3.3: The Deposit Flow",
+  "id": "mqut6+HORXjQlbwNXc6T3toNOaHdriPOXV0zqHICkn8=",
+  "originalId": 5182,
+  "position": 5,
+  "type": "text",
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough provides a step-by-step guide through the deposit process. The goal is for you to understand the entire lifecycle of a deposit, from the initial function call to the final minting of shares.",
+      "title": "",
+      "id": "63659"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "contracts/OpenEdenVaultV4Impl.sol"
+      ],
+      "description": "The `deposit` function is the main entry point for users to deposit assets into the vault. It takes the amount of assets and the receiver's address as input.",
+      "title": "",
+      "id": "63660"
+    },
+    {
+      "type": "highlight",
+      "description": "Here is the `deposit` function. It performs several pre-condition checks before processing the deposit. First, it checks if deposits are paused. Then, it validates the **KYC** status of the sender and receiver. Finally, it checks if the deposit amount meets the minimum requirements. If all checks pass, it calls the `_processDeposit` function to handle the core logic.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "63661"
+    },
+    {
+      "type": "textOnly",
+      "description": "Let's examine each pre-condition check in detail.",
+      "title": "",
+      "id": "63662"
+    },
+    {
+      "type": "highlight",
+      "description": "The function first checks with the controller to ensure deposits are not paused. This is a safety mechanism that allows the vault operator to halt all deposits in an emergency.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 146
+        }
+      ],
+      "title": "",
+      "id": "63663"
+    },
+    {
+      "type": "highlight",
+      "description": "The next check is `_validateKyc`. This internal function ensures that both the sender and receiver are verified and not banned by querying the `kycManager` contract.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 149,
+          "end": 149
+        }
+      ],
+      "title": "",
+      "id": "63664"
+    },
+    {
+      "type": "highlight",
+      "description": "Here is the `_validateKyc` function. It verifies that both the `_from` and `_to` addresses are KYC-verified and not banned. The function reverts if any of these conditions are not met.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 1071,
+          "end": 1078
+        }
+      ],
+      "title": "",
+      "id": "63665"
+    },
+    {
+      "type": "highlight",
+      "description": "The final pre-condition checks the deposit amount. It ensures that the deposit is greater than the minimum deposit amount (line 154), and if it's the user's first deposit, it must also be greater than the first deposit amount (lines 155-159).",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 151,
+          "end": 159
+        }
+      ],
+      "title": "",
+      "id": "63666"
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's transition to the core deposit logic in the `_processDeposit` function.",
+      "title": "",
+      "id": "63667"
+    },
+    {
+      "type": "highlight",
+      "description": "The `_processDeposit` function handles the main logic of the deposit process. It calculates fees, transfers assets, converts assets to shares, and mints the final shares.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 786,
+          "end": 829
+        }
+      ],
+      "title": "",
+      "id": "63668"
+    },
+    {
+      "type": "highlight",
+      "description": "First, it calculates the transaction fee by calling the `txsFee` function. This function determines the deposit fee based on the current fee structure (a later tour will cover fees in detail).",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 791,
+          "end": 795
+        }
+      ],
+      "title": "",
+      "id": "63669"
+    },
+    {
+      "type": "highlight",
+      "description": "Next, it performs the first asset transfer. If there's a fee, it transfers the fee amount from the sender to the `oplTreasury` using `safeTransferFrom`.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 798,
+          "end": 805
+        }
+      ],
+      "title": "",
+      "id": "63670"
+    },
+    {
+      "type": "highlight",
+      "description": "After collecting the fee, it calculates the trimmed assets (original amount minus fee) and converts them to shares using the `_convertToShares` function. It also checks if the new shares would exceed the total supply cap.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 807,
+          "end": 817
+        }
+      ],
+      "title": "",
+      "id": "63671"
+    },
+    {
+      "type": "highlight",
+      "description": "Here is the `_convertToShares` function. It uses the oracle price (`tbillUsdcRate`) to determine how many vault shares the user should receive for their deposited assets. The `mulDiv` function helps prevent rounding errors.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 931,
+          "end": 935
+        }
+      ],
+      "title": "",
+      "id": "63672"
+    },
+    {
+      "type": "highlight",
+      "description": "The `tbillUsdcRate` function fetches the current T-bill price from the oracle (`tbillUsdPriceFeed`). It includes safety checks to ensure the price is valid and not outdated (lines 638 and 646-647).",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 634,
+          "end": 649
+        }
+      ],
+      "title": "",
+      "id": "63673"
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `_deposit` function is called to complete the deposit process. This function performs the second asset transfer - it transfers the principal (trimmed assets) from the sender to the main `treasury` (lines 1000-1005). Then it mints the new vault shares (**ERC20 tokens**) to the receiver (line 1006).",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 993,
+          "end": 1009
+        }
+      ],
+      "title": "",
+      "id": "63674"
+    },
+    {
+      "type": "mcq",
+      "description": "During the `deposit` process, how are the user's assets and the associated fees handled?\n\nOptions:\n\n A). The full amount is transferred to the `treasury`, which then sends the calculated fee to the `oplTreasury`.\n\nB). The full amount is held by the vault contract. Fees are paid out from the vault's balance during a separate process.\n\nC). A calculated fee is sent to `oplTreasury`, and the remaining principal is sent to `treasury`.\n\nD). The assets are converted to shares, and a fee, also denominated in shares, is deducted before minting.\n\n\nCorrect: C). A calculated fee is sent to `oplTreasury`, and the remaining principal is sent to `treasury`.\n\nExplanation: The correct flow involves two separate transfers from the user. First, in `_processDeposit`, the calculated `totalFee` is transferred directly from the sender to `oplTreasury` (lines 798-805). Then, the remaining principal (`trimmedAssets`) is transferred from the sender to the main `treasury` within the `_deposit` helper function (lines 1000-1005) just before the new shares are minted. The funds are not pooled in one place before distribution.",
+      "title": "",
+      "id": "63676",
+      "text": "During the `deposit` process, how are the user's assets and the associated fees handled?",
+      "answers": [
+        "The full amount is transferred to the `treasury`, which then sends the calculated fee to the `oplTreasury`.",
+        "The full amount is held by the vault contract. Fees are paid out from the vault's balance during a separate process.",
+        "A calculated fee is sent to `oplTreasury`, and the remaining principal is sent to `treasury`.",
+        "The assets are converted to shares, and a fee, also denominated in shares, is deducted before minting."
+      ],
+      "correct": 2,
+      "explanation": "The correct flow involves two separate transfers from the user. First, in `_processDeposit`, the calculated `totalFee` is transferred directly from the sender to `oplTreasury` (lines 798-805). Then, the remaining principal (`trimmedAssets`) is transferred from the sender to the main `treasury` within the `_deposit` helper function (lines 1000-1005) just before the new shares are minted. The funds are not pooled in one place before distribution."
+    },
+    {
+      "type": "textOnly",
+      "description": "That concludes our walkthrough of the deposit process. You should now have a clear understanding of how a deposit flows from the initial function call through all the safety checks, fee calculations, asset transfers, and finally to the minting of shares.",
+      "title": "",
+      "id": "63675"
+    }
+  ]
+}

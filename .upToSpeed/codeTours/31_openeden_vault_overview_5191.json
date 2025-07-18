@@ -1,0 +1,217 @@
+{
+  "title": "3.1: OpenEden Vault: Overview",
+  "id": "Yc4+yh3J49loddbnRHOASp9/YtJnDIPvHkZFs9MxaOU=",
+  "originalId": 5191,
+  "position": 3,
+  "type": "text",
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to our walkthrough of the `OpenEden T-Bill Vault` system. This `contract` transforms how users can interact with T-Bills by tokenizing them into tradeable `ERC20` shares.\n\nWe'll explore how this system works from the ground up, understanding both the technical architecture and the user experience it enables.",
+      "title": "",
+      "id": "63698"
+    },
+    {
+      "type": "highlight",
+      "description": "The `OpenEdenVaultV4` contract is built on three foundational pillars that define its behavior:\n\n`ERC20Upgradeable` makes vault shares fully transferable tokens that users can trade, while `UUPSUpgradeable` allows the contract logic to evolve without losing user funds. The `OwnableUpgradeable` pattern ensures only authorized parties can make critical system changes.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "63699"
+    },
+    {
+      "type": "highlight",
+      "description": "The vault's core architecture relies on external contracts that each handle a specific responsibility. The `underlying` token (typically `USDC`) is what users deposit, while the `controller` acts as an emergency brake that can pause operations system-wide.\n\nThe `tbillUsdPriceFeed` is a `Chainlink` oracle that tells the vault how much T-Bills are worth in USD, which directly affects how many shares users get when they deposit.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 50,
+          "end": 59
+        }
+      ],
+      "title": "",
+      "id": "63700"
+    },
+    {
+      "type": "highlight",
+      "description": "The remaining **external contracts** handle **business logic**: `feeManager` calculates all fees dynamically based on current market conditions, while `kycManager` ensures regulatory compliance by verifying user identities before any transaction.\n\nThese contracts work together during every user interaction - none operate in isolation.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 77
+        }
+      ],
+      "title": "",
+      "id": "63701"
+    },
+    {
+      "type": "highlight",
+      "description": "Two specialized contracts handle advanced features: `partnerShip` can provide fee discounts to certain users (fees can even go negative), while `redemptionContract` enables instant withdrawals by connecting to external liquidity sources.\n\nThis pluggable design means the vault can adapt to different market conditions and user needs.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 109,
+          "end": 116
+        }
+      ],
+      "title": "",
+      "id": "63702"
+    },
+    {
+      "type": "highlight",
+      "description": "The vault's economic model is controlled by key parameters. The `totalSupplyCap` prevents the vault from growing beyond manageable limits, while `tbillDecimalScaleFactor` ensures precise mathematical conversions between T-Bill values and USDC amounts.\n\nThese parameters work together to maintain the vault's stability and accuracy.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "63703"
+    },
+    {
+      "type": "highlight",
+      "description": "The `withdrawalQueue` is perhaps the most important state variable - it handles the fundamental challenge that `T-Bills` can't be instantly liquidated. When users want to redeem shares, their requests wait in this queue until the vault has enough liquid assets to fulfill them.\n\nThis queue system protects all users from runs on the vault while maintaining fairness through **first-in-first-out** processing.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 96
+        }
+      ],
+      "title": "",
+      "id": "63704"
+    },
+    {
+      "type": "highlight",
+      "description": "When users call `deposit`, a complex orchestration begins. The function first checks that deposits aren't paused, validates both sender and receiver through **KYC**, and enforces minimum deposit amounts.\n\nNotice line 161 calls `_processDeposit` - this is where the real work happens, including fee calculation and share minting based on current T-Bill prices.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "63705"
+    },
+    {
+      "type": "highlight",
+      "description": "The `_processDeposit` function reveals how deposits actually work. Lines `791-795` calculate fees using the current fee structure, then line `807` subtracts fees from the deposited amount.\n\nLine `808` converts the remaining assets to shares using `_convertToShares` - this is where the T-Bill price feed becomes critical, as it determines the exchange rate between `USDC` and vault shares.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 786,
+          "end": 817
+        }
+      ],
+      "title": "",
+      "id": "63706"
+    },
+    {
+      "type": "highlight",
+      "description": "The share conversion mechanism is beautifully simple yet precise. The `_convertToShares` function uses the current T-Bill price from the oracle to determine exactly how many shares to mint.\n\nThis mathematical relationship ensures that share prices automatically track T-Bill values, providing users with direct exposure to T-Bill performance.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 931,
+          "end": 935
+        }
+      ],
+      "title": "",
+      "id": "63707"
+    },
+    {
+      "type": "highlight",
+      "description": "The standard `redeem` function handles the reality that **T-Bills** can't be instantly liquidated. Instead of immediate redemption, it adds the user's request to the withdrawal queue.\n\nLine 180 calls `_processWithdraw`, which moves the user's shares into the vault's custody while they wait for processing - this prevents users from trading shares they've already committed to redeem.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 170,
+          "end": 181
+        }
+      ],
+      "title": "",
+      "id": "63708"
+    },
+    {
+      "type": "highlight",
+      "description": "For users who need immediate liquidity, `redeemIns` provides instant redemption by leveraging the external `redemptionContract`. This bypasses the queue entirely but may involve different fees or exchange rates.\n\nThe function returns the actual amount received, which might differ from the requested amount due to market conditions or redemption mechanisms.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 189,
+          "end": 205
+        }
+      ],
+      "title": "",
+      "id": "63709"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the contract's design, what is the primary architectural reason for having two distinct redemption functions, `redeem` and `redeemIns`?\n\nOptions:\n\n A). `redeem` processes withdrawals through a queue to manage the illiquidity of T-Bills, while `redeemIns` uses an external contract for immediate liquidity.\n\nB). `redeem` is a low-fee option that processes during `updateEpoch`, while `redeemIns` is a premium, high-fee option that executes immediately.\n\nC). `redeem` is for standard users, while `redeemIns` is a privileged function for partners to bypass the withdrawal queue.\n\n\nCorrect: A). `redeem` processes withdrawals through a queue to manage the illiquidity of T-Bills, while `redeemIns` uses an external contract for immediate liquidity.\n\nExplanation: This is correct. The core architectural challenge is the illiquid nature of the underlying T-Bills. The standard `redeem` function uses the `withdrawalQueue` to manage this, processing redemptions when the vault has liquid assets. `redeemIns` provides an alternative path by plugging into an external `redemptionContract`, which can offer immediate liquidity. The other options are incorrect; fees are a secondary consequence, not the primary architectural driver, and both functions are available to regular KYC-verified users.",
+      "title": "",
+      "id": "63726",
+      "text": "Based on the contract's design, what is the primary architectural reason for having two distinct redemption functions, `redeem` and `redeemIns`?",
+      "answers": [
+        "`redeem` processes withdrawals through a queue to manage the illiquidity of T-Bills, while `redeemIns` uses an external contract for immediate liquidity.",
+        "`redeem` is a low-fee option that processes during `updateEpoch`, while `redeemIns` is a premium, high-fee option that executes immediately.",
+        "`redeem` is for standard users, while `redeemIns` is a privileged function for partners to bypass the withdrawal queue."
+      ],
+      "correct": 0,
+      "explanation": "This is correct. The core architectural challenge is the illiquid nature of the underlying T-Bills. The standard `redeem` function uses the `withdrawalQueue` to manage this, processing redemptions when the vault has liquid assets. `redeemIns` provides an alternative path by plugging into an external `redemptionContract`, which can offer immediate liquidity. The other options are incorrect; fees are a secondary consequence, not the primary architectural driver, and both functions are available to regular KYC-verified users."
+    },
+    {
+      "type": "highlight",
+      "description": "The `processWithdrawalQueue` function is where queued redemptions become reality. Operators call this when the vault has sufficient liquid assets to fulfill pending requests.\n\nLines 284-288 implement a safety feature: if there aren't enough assets for the first request in the queue, processing stops entirely. This prevents partial fulfillment and maintains queue order fairness.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 263,
+          "end": 287
+        }
+      ],
+      "title": "",
+      "id": "63710"
+    },
+    {
+      "type": "highlight",
+      "description": "The `updateEpoch` function serves as the vault's daily heartbeat. Operators call this to advance the vault's internal clock, which affects fee calculations and weekend trading rules.\n\n`Line 361` is particularly important - it calculates and accumulates management fees based on the vault's total assets, ensuring the protocol earns revenue for maintaining the T-Bill exposure.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 351,
+          "end": 365
+        }
+      ],
+      "title": "",
+      "id": "63711"
+    },
+    {
+      "type": "highlight",
+      "description": "The `offRamp` function completes the `T-Bill` lifecycle by moving assets from the vault to the treasury. This typically happens after `T-Bills` are sold or mature, converting them back to liquid assets.\n\nThis function bridges the gap between on-chain vault operations and traditional financial markets where `T-Bills` are actually traded.",
+      "file": "contracts/OpenEdenVaultV4Impl.sol",
+      "highlight": [
+        {
+          "start": 242,
+          "end": 245
+        }
+      ],
+      "title": "",
+      "id": "63712"
+    },
+    {
+      "type": "textOnly",
+      "description": "The OpenEden vault creates a bridge between traditional `T-Bill` investments and `DeFi`. Users deposit `USDC`, receive tradeable shares that track `T-Bill` performance, and can exit either through a withdrawal queue or instant redemption mechanisms.\n\nThis architecture balances the illiquid nature of `T-Bills` with the 24/7 liquidity expectations of `DeFi` users, while maintaining regulatory compliance and fee management throughout the entire user journey.",
+      "title": "",
+      "id": "63713"
+    }
+  ]
+}
